@@ -4,7 +4,6 @@ import numpy as np
 from numpy import linalg as LA
 
 from keras.applications.vgg16 import VGG16
-from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
 
 class VGGNet:
