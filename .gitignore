@@ -1,0 +1,4 @@
+.venv
+tiny-imagenet-200
+__pycache__
+*.h5
