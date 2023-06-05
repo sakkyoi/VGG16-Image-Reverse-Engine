@@ -7,7 +7,6 @@ import base64
 import numpy as np
 import h5py
 import pandas as pd
-from sklearn.cluster import KMeans
 import pickle
 
 import tensorflow as tf
