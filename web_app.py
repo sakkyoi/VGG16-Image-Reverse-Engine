@@ -44,7 +44,7 @@ def query_kmeans(query_img: np.ndarray):
 
 def query(image, mode, noise, noise_seed, mean, var, amount, salt_vs_pepper):
     if image == None or noise_seed == None:
-        return None, None, None, None
+        return None, None, None, None, None
     
     query_img = tf.keras.utils.load_img(image, target_size=(model.input_shape[0], model.input_shape[1]))
     query_img = tf.keras.utils.img_to_array(query_img).astype(int)
