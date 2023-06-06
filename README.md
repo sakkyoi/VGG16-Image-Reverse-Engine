@@ -2,7 +2,7 @@
 An Image Reverse Engine based on VGG16
 
 ## Introduction
-This is a project for the course "Application of artificial intelligence and deep learning" in the National Kaohsiung University of Science and Technology. The goal of this project is to build a image reverse engine based on VGG16. 
+This is a project for the course "Application of artificial intelligence and deep learning" in the National Kaohsiung University of Science and Technology. The goal of this project is to build an image reverse engine based on VGG16. 
 
 ## Requirements
 ```
