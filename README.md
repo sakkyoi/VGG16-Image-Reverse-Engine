@@ -29,7 +29,7 @@ The query.ipynb is a file for you to query images. You can run it on Jupyter Not
 It contains the following parts:
 1. Search images without any modification
 2. Search images with Gaussian Noise
-3. Search images with clusterring (K-Means) and Gaussian Noise
+3. Search images with clustering (K-Means) and Gaussian Noise
 
 This file also explains the process of searching images in detail.
 
