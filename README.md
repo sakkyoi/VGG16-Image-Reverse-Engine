@@ -44,7 +44,7 @@ model = VGGNet()
 ```
 and then you can use the model to extract features.
 ```python
-features = model.extract_feat(image)
+features = model.extract_feature(image)
 ```
 
 ### [web_app.py](web_app.py)
