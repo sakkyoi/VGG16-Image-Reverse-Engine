@@ -5,14 +5,13 @@ import h5py
 import pandas as pd
 import pickle
 
+from skimage.util import random_noise
+
 import tensorflow as tf
 
 from model import VGGNet
 
-def query_normal(image: str):
-    query_img = tf.keras.utils.load_img(image, target_size=(model.input_shape[0], model.input_shape[1]))
-    query_img = tf.keras.utils.img_to_array(query_img).astype(int)
-
+def query_normal(query_img: np.ndarray):
     query_feature = model.extract_feature(query_img, verbose=0)
     scores = np.dot(query_feature, features.T)
     rank_ID = np.argsort(scores)[::-1]
@@ -20,12 +19,9 @@ def query_normal(image: str):
 
     imlist = [image_ids.astype(str)[index] for i, index in enumerate(rank_ID[0:10])]
 
-    return imlist, rank_score[0:10].tolist()
+    return imlist, rank_score[0:10].tolist(), len(scores)
 
-def query_kmeans(image: str):
-    query_img = tf.keras.utils.load_img(image, target_size=(model.input_shape[0], model.input_shape[1]))
-    query_img = tf.keras.utils.img_to_array(query_img).astype(int)
-
+def query_kmeans(query_img: np.ndarray):
     query_feature = model.extract_feature(query_img, verbose=0)
 
     cluster = kmeans.predict(query_feature.reshape(1, -1))
@@ -43,15 +39,36 @@ def query_kmeans(image: str):
 
     imlist = [image_ids.astype(str)[index] for i, index in enumerate(query[rank_ID[0:10]])]
 
-    return imlist, rank_score[0:10].tolist()
+    return imlist, rank_score[0:10].tolist(), len(scores), cluster
 
-def query(image, type):
-    if type == 'kmeans':
-        results, scores = query_kmeans(image)
-    elif type == 'normal':
-        results, scores = query_normal(image)
+def query(image, mode, noise, noise_seed, mean, var, amount, salt_vs_pepper):
+    query_img = tf.keras.utils.load_img(image, target_size=(model.input_shape[0], model.input_shape[1]))
+    query_img = tf.keras.utils.img_to_array(query_img).astype(int)
 
-    return [(result, f'Score: {score}, file: {result}') for result, score in zip(results, scores)]
+    if noise == 'none':
+        pass
+    elif noise == 'gaussian' or noise =='speckle':
+        query_img = random_noise(query_img / 255, mode=noise, rng=int(noise_seed), mean=mean, var=var, clip=True)
+        query_img = np.array(query_img * 255, dtype=np.uint8)
+    elif noise == 'localvar':
+        query_img = random_noise(query_img / 255, mode=noise, rng=int(noise_seed), clip=True)
+        query_img = np.array(query_img * 255, dtype=np.uint8)
+    elif noise == 'poisson':
+        query_img = random_noise(query_img / 255, mode=noise, rng=int(noise_seed), clip=True)
+        query_img = np.array(query_img * 255, dtype=np.uint8)
+    elif noise == 'salt' or noise == 'pepper':
+        query_img = random_noise(query_img / 255, mode=noise, rng=int(noise_seed), amount=amount, clip=True)
+        query_img = np.array(query_img * 255, dtype=np.uint8)
+    elif noise == 's&p':
+        query_img = random_noise(query_img / 255, mode=noise, rng=int(noise_seed), amount=amount, salt_vs_pepper=salt_vs_pepper, clip=True)
+        query_img = np.array(query_img * 255, dtype=np.uint8)
+
+    if mode == 'normal':
+        results, scores, length = query_normal(query_img)
+    elif mode == 'kmeans':
+        results, scores, length, cluster = query_kmeans(query_img)
+
+    return query_img, [(result, f'Score: {score}, file: {result}') for result, score in zip(results, scores)], length, f'{cluster}' if mode == 'kmeans' else None
 
 if __name__ == '__main__':
     model = VGGNet()
@@ -72,10 +89,19 @@ if __name__ == '__main__':
         fn=query,
         inputs=[
             gr.Image(type='filepath'),
-            gr.Radio(['normal', 'kmeans'])
+            gr.Radio(['normal', 'kmeans'], value='normal'),
+            gr.Radio(['none', 'gaussian', 'localvar', 'poisson', 'salt', 'pepper', 's&p', 'speckle'], value='none'),
+            gr.Number(label='random_seed', value=0),
+            gr.Slider(label='mean', maximum=1, minimum=0, value=0),
+            gr.Slider(label='var', maximum=1, minimum=0, value=0.01),
+            gr.Slider(label='amount', maximum=1, minimum=0, value=0.05),
+            gr.Slider(label='salt_vs_pepper', maximum=1, minimum=0, value=0.5),
         ],
         outputs=[
-            gr.Gallery(label='Top 10 similar images', show_label=False).style(columns=[5], rows=[2])
+            gr.Image(label='query image', type='numpy'),
+            gr.Gallery(label='Top 10 similar images').style(columns=[5], rows=[2]),
+            gr.Label(label='count of images for searching'),
+            gr.Label(label='cluster id')
         ],
     )
     iface.launch()
