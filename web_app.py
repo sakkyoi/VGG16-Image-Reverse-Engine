@@ -6,6 +6,7 @@ import pandas as pd
 import pickle
 
 from skimage.util import random_noise
+import time
 
 import tensorflow as tf
 
@@ -42,6 +43,9 @@ def query_kmeans(query_img: np.ndarray):
     return imlist, rank_score[0:10].tolist(), len(scores), cluster
 
 def query(image, mode, noise, noise_seed, mean, var, amount, salt_vs_pepper):
+    if image == None or noise_seed == None:
+        return None, None, None, None
+    
     query_img = tf.keras.utils.load_img(image, target_size=(model.input_shape[0], model.input_shape[1]))
     query_img = tf.keras.utils.img_to_array(query_img).astype(int)
 
@@ -63,12 +67,16 @@ def query(image, mode, noise, noise_seed, mean, var, amount, salt_vs_pepper):
         query_img = random_noise(query_img / 255, mode=noise, rng=int(noise_seed), amount=amount, salt_vs_pepper=salt_vs_pepper, clip=True)
         query_img = np.array(query_img * 255, dtype=np.uint8)
 
+    start = time.time()
     if mode == 'normal':
         results, scores, length = query_normal(query_img)
     elif mode == 'kmeans':
         results, scores, length, cluster = query_kmeans(query_img)
+    end = time.time()
+    query_time = end - start
+    query_time = round(query_time * 1000, 2)
 
-    return query_img, [(result, f'Score: {score}, file: {result}') for result, score in zip(results, scores)], length, f'{cluster}' if mode == 'kmeans' else None
+    return query_img, f'Query time: {query_time} ms', [(result, f'Score: {score}, file: {result}') for result, score in zip(results, scores)], length, f'{cluster}' if mode == 'kmeans' else None
 
 if __name__ == '__main__':
     model = VGGNet()
@@ -99,6 +107,7 @@ if __name__ == '__main__':
         ],
         outputs=[
             gr.Image(label='query image', type='numpy'),
+            gr.Label(label='query time'),
             gr.Gallery(label='Top 10 similar images').style(columns=[5], rows=[2]),
             gr.Label(label='count of images for searching'),
             gr.Label(label='cluster id')
