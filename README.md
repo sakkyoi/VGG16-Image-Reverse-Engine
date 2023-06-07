@@ -54,4 +54,12 @@ python web_app.py
 ```
 
 ## Reference
-I'll do it later.
+[Tiny Imagenet 200 from Stanford University CS231n](http://cs231n.stanford.edu/tiny-imagenet-200.zip)
+
+[how does the dot product determine similarity?](https://math.stackexchange.com/questions/689022/how-does-the-dot-product-determine-similarity)
+
+[Image Similarity Comparison using VGG16 Deep Learning Model](https://medium.com/@developerRegmi/image-similarity-comparison-using-vgg16-deep-learning-model-a663a411cd24)
+
+[基于VGG-16的海量图像检索系统（以图搜图升级版）](https://www.cnblogs.com/linkmust/articles/9607604.html)
+
+[点积相似度、余弦相似度、欧几里得相似度](https://zhuanlan.zhihu.com/p/159244903)
