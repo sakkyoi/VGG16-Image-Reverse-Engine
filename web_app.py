@@ -76,7 +76,7 @@ def query(image, mode, noise, noise_seed, mean, var, amount, salt_vs_pepper):
     query_time = end - start
     query_time = round(query_time * 1000, 2)
 
-    return query_img, f'Query time: {query_time} ms', [(result, f'Score: {score}, file: {result}') for result, score in zip(results, scores)], length, f'{cluster}' if mode == 'kmeans' else None
+    return query_img, f'Query time: {query_time} ms', [(result, f'Score: {score}, file: {result}') for result, score in zip(results, scores)], length, f'{cluster}' if mode == 'kmeans' else 'None'
 
 if __name__ == '__main__':
     model = VGGNet()
