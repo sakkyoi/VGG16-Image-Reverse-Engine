@@ -1,9 +1,6 @@
 import os
-
 import numpy as np
-
 import h5py
-
 from model import VGGNet
 
 '''
@@ -16,6 +13,8 @@ from model import VGGNet
     ['data\\image0.jpg', 'data\\image1.jpg', 'data\\image2.jpg', ...]
     ```
 '''
+
+
 def load_data():
     directories = os.listdir(os.path.join('tiny-imagenet-200', 'train'))
     datas = []
@@ -23,6 +22,7 @@ def load_data():
         datas += [os.path.join('tiny-imagenet-200', 'train', directory, 'images', file) for file in os.listdir(os.path.join('tiny-imagenet-200', 'train', directory, 'images')) if file.endswith('.JPEG')]
     print(f'Successfully load {len(datas)} images')
     return datas
+
 
 def indexing(datas):
     features = []
@@ -36,6 +36,7 @@ def indexing(datas):
         print(f'Extracted feature from {i+1} images, {len(datas) - i - 1} images left')
 
     return features, image_ids
+
 
 if __name__ == '__main__':
     datas = load_data()
